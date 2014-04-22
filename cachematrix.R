@@ -1,3 +1,5 @@
+## NB: I may have over-commented this file, I sincerely hope this does not impair readability.
+
 ## Filename:        cachematrix.R
 ## Author:          JamesAKirk
 ## Course:          R Programming with Roger D. Peng, April 2014
@@ -98,7 +100,7 @@ cacheSolve <- function(cacheMatrix) {
 
 
 ## This function is beyond the scope of the assignment. I will include it in hopes that it may be useful. 
-testCacheMatrix  <- function(verbose=1, N=5){
+testCacheMatrix  <- function(verbose=0, N=5){
   #A good clean test matrix:
   #mat1 <- matrix(c(1,1,1,3,4,3,3,3,4), 3)
   #generatea random matrix to invert
