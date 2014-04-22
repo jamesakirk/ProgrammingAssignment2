@@ -27,7 +27,7 @@
 ##      setinverse  : a function that sets inv
 ##      getinverse  : a function that returns inv
 ##
-## makeCacheMatrix can be called with ot without arguments.
+## makeCacheMatrix can be called with out without arguments.
 ## makeCacheMatrix() creates an object with a null x, x can be set later with set(someMatrix)
 ## makeCacheMatrix(someMatrix) creates an object with someMatrix as the initial matrix
 ## Note that while makeCacheMatrix hold the value of inv, it does not compute it
@@ -66,42 +66,70 @@ makeCacheMatrix <- function(x = matrix()) {
        getinverse = getinverse)
 }
 
-cacheSolve <- function(x) {
-  ## Return a matrix that is the inverse of 'x'
-  inv <- x$getinverse()
+## cacheSolve takes a makeCacheMatrix object as an argument
+## and returns it's inverse. If the inverse has been already 
+## calculated and cached, it returns it. Else it caclculates,
+## caches and returns it.
+## 
+cacheSolve <- function(cacheMatrix) {
+  #first, get the inverse stored in the cacheMatrix object
+  inv <- cacheMatrix$getinverse()
+  #Check to see if the the inverse has been calculated yet
   if(!is.null(inv)) {
+    #If it has, let user know that it is getting the cached copy
     message("getting cached data")
+    #return the cached copy
     return(inv)
+    #since it has returned a value, function cacheSolve terminates
   }
-  data <- x$get()
+  #If we are here, then the inverse has not been calculated and cached
+  #so, we will have to calculate and cache it
+  #First, get the data matrix stored in the makeCacheMatrix object named cacheMatrix
+  # we will assign this to 'data', but inside the makeCacheMatrix environment, it is know as 'x'
+  data <- cacheMatrix$get()
+  #Next, the matrix data obtained above is inverted thusly:
   inv <- solve(data)
-  x$setinverse(inv)
+  #Next, since the inverse of the matrix data has been calculated,
+  #cache it inside the cacheMatrix object
+  cacheMatrix$setinverse(inv)
+  #Finally, we return 'inv' and terminate the function
   inv
 }
 
 
 ## This function is beyond the scope of the assignment. I will include it in hopes that it may be useful. 
-testCacheMatrix  <- function(){
-  mat1 <- matrix(c(1,1,1,3,4,3,3,3,4), 3)
-  N  <- 1000
-  mat2  <- matrix( rnorm(N^2,mean=0,sd=1), N, N) 
-  list1  <- list(mat2)
+testCacheMatrix  <- function(verbose=1, N=5){
+  #A good clean test matrix:
+  #mat1 <- matrix(c(1,1,1,3,4,3,3,3,4), 3)
+  #generatea random matrix to invert
+  mat1  <- matrix( rnorm(N^2,mean=0,sd=1), N, N) 
+  list1  <- list(mat1)
   function1  <- function(x=matrix()){
+    #this is what we are going to do for test matrix:
+    #make the matrix object
     y  <- makeCacheMatrix(x)
     message("Original Matrix:")
-    #print(y$get())
+    if(verbose) print(y$get())
     
+    #Start the timer
     ptm <- proc.time()
     message("Inverted Matrix (pass 1)")
+    #solve the matrix inverse
     s  <- cacheSolve(y)
-    # print(s)
+    if(verbose) print(s)
     print(proc.time() - ptm)
+    #Stop the timer and determine how much time it took
     
+    #Start the timer
     ptm <- proc.time()
     message("Inverted Matrix (pass 2)")
+    #solve the matrix inverse
     s <- cacheSolve(y) 
-    #print(s)
+    if(verbose) print(s)
     print(proc.time() - ptm)
+    #Stop the timer and determine how much time it took
+    #This time through, it should grab a cached copy and 
+    #be much faster for large matricies
   }
   z  <- lapply(list1, function1)
 }
